@@ -1,0 +1,17 @@
+A pipe creates a pair of file descriptors, pointing to a pipe inode, and places them in the array
+pointed to by filedes. filedes[0] is for reading, filedes[1] is for writing. An unnamedpipe can be viewed and accessed by processes with parent-child relationship. To share a pipe
+among all processes, you need to create a named pipe.
+The following program creates a pipe, and then fork(2) to create a child process. After the
+fork(2), each process closes the descriptors that it doesn't need for the pipe (see pipe(7)).
+In the following sample code, the child process reads the file specified in argv[1], and
+writes the file content to the parent process through the pipe. The parent process reads the data
+from the pipe and echoes the data on the screen.
+
+Monitoring multiple file descriptors with polling strategy may cause busy waiting, which
+lowers down the system performance. To effectively monitor multiple descriptors, you can
+use the system call select() to perform block waiting, rather than busy waiting. The callingprocess specifies the interesting file descriptors to select() and performs blocking waiting.
+When one or more descriptors become "ready" (ready for read or ready for write), select()
+informs the calling process to awake from blocking state. Then, a user can check each file
+descriptor to perform read/write operation. In following program, two child processes sleep a
+random time, then send a message to the parent process. The parent process uses select()
+to perform blocking waiting, until one of the pipes is ready to read.
